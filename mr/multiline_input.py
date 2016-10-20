@@ -1,5 +1,6 @@
 from mrjob.job import MRJob
 from mrjob.step import MRStep
+from email.utils import parseaddr
 
 
 class MRMultilineInput(MRJob):
@@ -7,7 +8,7 @@ class MRMultilineInput(MRJob):
     def mapper_count_init(self):
         self.receiver = ''
         self.sender = ''
-        self.in_header = False
+        self.in_body = False
 
     def steps(self):
         return [
@@ -22,24 +23,27 @@ class MRMultilineInput(MRJob):
     def mapper_count(self, _, line):
         line = line.strip()
 
-        if line:
-            self.in_header = False
-        elif ',"Message-ID:"' in line:
-            self.in_header = True
+        if not line:
+            self.in_body = True
+        elif ',"Message-ID: ' in line:
+            self.in_body = False
 
-        if not self.in_header:
+        if not self.in_body:
             if line.find('To: ') == 0:
                 line = line[4:].strip().replace(",", "").replace(
                     "<", "").replace(">", "").replace("\"", "").replace(
                         "\'", "").replace("\\", "")
-                self.receiver = line.split(" ")
+                addrs = [parseaddr(l) for l in line.split(" ")]
+                self.receiver = [email[1] for email in addrs if email[1]]
 
             if line.find('From: ') == 0:
                 self.sender = line[6:]
 
             if self.sender and len(self.receiver) > 0:
                 for recv in self.receiver:
-                    yield (self.sender, recv), 1
+                    if recv != "":
+                        yield (self.sender, recv), 1
+
                 self.receiver = ''
                 self.sender = ''
 
