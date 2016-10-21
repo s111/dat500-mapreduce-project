@@ -1,7 +1,7 @@
 from mrjob.job import MRJob
 
 
-class MRCountDomains(MRJob):
+class MRCountFromTo(MRJob):
     def clean_address(self, address):
         return address.replace("<", "").replace(">", "").replace(
             "\\", "").replace("\"", "")
@@ -44,4 +44,4 @@ class MRCountDomains(MRJob):
 
 
 if __name__ == '__main__':
-    MRCountDomains.run()
+    MRCountFromTo.run()
