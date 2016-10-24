@@ -1,6 +1,6 @@
 from mrjob.job import MRJob
 
-class MRCountSum(MRJob):
+class MRCountDays(MRJob):
 
     def mapper(self, _, line):
         #line = line.strip() # remove leading and trailing whitespace
@@ -18,4 +18,4 @@ class MRCountSum(MRJob):
 
 
 if __name__ == '__main__':
-    MRCountSum.run()
+    MRCountDays.run()
