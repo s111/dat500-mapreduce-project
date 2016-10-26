@@ -45,11 +45,6 @@ class MRBodyWordCount(MRJob):
         for word in self.words:
             yield word, self.words[word]
 
-    def combiner(self, word, count):
-        count = sum(count)
-        if count >= 10:
-            yield word, count
-
     def reducer(self, word, count):
         count = sum(count)
         if count >= 10:
