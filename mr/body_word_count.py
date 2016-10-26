@@ -3,7 +3,10 @@ from datetime import datetime
 from nltk.corpus import words
 
 class MRBody_word_count(MRJob):
+import re
 
+FILTER = "<> \\\"\'"
+DELIMITERS = '\.|,| '
     def mapper_init(self):
         self.in_body = False
         self.body = []
@@ -21,6 +24,9 @@ class MRBody_word_count(MRJob):
             # add some form of filtering
             words = [word.strip("<> \\\"\'") for word in "".join(self.body).split(" ,.")
                      if word.strip("<> \\\"\'") in self.wordset]
+            words = [word.strip(FILTER)
+                     for word in re.split(DELIMITERS, "".join(self.body))
+                     if word.strip(FILTER) in self.wordset]
 
             self.body = []
             count = {}
