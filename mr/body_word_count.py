@@ -50,5 +50,4 @@ class MRBody_word_count(MRJob):
             yield word, count
 
 if __name__ == '__main__':
-    print("Started job at {}".format(str(datetime.now())))
     MRBody_word_count.run()
