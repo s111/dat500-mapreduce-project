@@ -38,8 +38,9 @@ class MRMessageWordCount(MRJob):
         for word, occurences in self.words.items():
             yield word, occurences
 
-    def reducer(self, word, count):
-        count = sum(count)
+    def reducer(self, word, occurences):
+        count = sum(occurences)
+
         if count >= 10:
             yield word, count
 
