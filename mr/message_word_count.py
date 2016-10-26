@@ -17,8 +17,6 @@ class MRMessageWordCount(MRJob):
         self.lines = []
 
     def mapper(self, _, line):
-        line = line.strip()
-
         if MESSAGE_ID in line:
             self.buffer_lines = False
         elif not line:
