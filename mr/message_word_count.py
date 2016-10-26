@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 
 from mrjob.job import MRJob
 from nltk.corpus import words
@@ -9,8 +10,8 @@ DELIMITERS = "[^A-Za-z\-]"
 
 class MRMessageWordCount(MRJob):
     def mapper_init(self):
-        self.vocabulary = {word: None for word in set(words.words())}
-        self.words = {}
+        self.vocabulary = {word: 0 for word in set(words.words())}
+        self.words = defaultdict(int)
 
         self.buffer_lines = False
         self.lines = []
@@ -31,9 +32,6 @@ class MRMessageWordCount(MRJob):
                      if len(term) and term in self.vocabulary)
 
             for term in terms:
-                if term not in self.words:
-                    self.words[term] = 0
-
                 self.words[term] += 1
 
             self.lines = []
