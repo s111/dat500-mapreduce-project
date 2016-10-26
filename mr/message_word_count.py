@@ -27,7 +27,7 @@ class MRMessageWordCount(MRJob):
         else:
             message = "".join(self.lines)
             terms = (term for term in re.split(DELIMITERS, message)
-                     if len(term) and term in self.vocabulary)
+                     if term in self.vocabulary)
 
             for term in terms:
                 self.words[term] += 1
