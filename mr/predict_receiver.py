@@ -2,7 +2,7 @@ from mrjob.job import MRJob
 from mrjob.step import MRStep
 
 
-class MRGraph(MRJob):
+class MRPredictReceiver(MRJob):
     def steps(self):
         return [
             MRStep(mapper_init=self.mapper_to_from_init,
@@ -65,4 +65,4 @@ class MRGraph(MRJob):
 
 
 if __name__ == '__main__':
-    MRGraph.run()
+    MRPredictReceiver.run()
