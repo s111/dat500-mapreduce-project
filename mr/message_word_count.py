@@ -4,8 +4,7 @@ from mrjob.job import MRJob
 from nltk.corpus import words
 
 MESSAGE_ID = "\",\"Message-ID: "
-FILTER = "<> \\\"\'"
-DELIMITERS = "\.|,| "
+DELIMITERS = "[^A-Za-z\-]"
 
 
 class MRMessageWordCount(MRJob):
@@ -29,9 +28,7 @@ class MRMessageWordCount(MRJob):
         else:
             message = "".join(self.lines)
 
-            # Clean up terms.
-            terms = [term.strip(FILTER)
-                     for term in re.split(DELIMITERS, message)]
+            terms = re.split(DELIMITERS, message)
 
             for term in terms:
                 if term not in self.vocabulary:
