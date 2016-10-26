@@ -1,45 +1,48 @@
+import re
+
 from mrjob.job import MRJob
 from nltk.corpus import words
 
-import re
-
-MESSAGE_ID = '","Message-ID: '
+MESSAGE_ID = "\",\"Message-ID: "
 FILTER = "<> \\\"\'"
-DELIMITERS = '\.|,| '
+DELIMITERS = "\.|,| "
 
 
 class MRBodyWordCount(MRJob):
     def mapper_init(self):
-        self.in_body = False
-        self.body = []
-        self.wordset = {word: None for word in set(words.words())}
+        self.vocabulary = {word: None for word in set(words.words())}
         self.words = {}
+
+        self.buffer_lines = False
+        self.lines = []
 
     def mapper(self, _, line):
         line = line.strip()
 
         if MESSAGE_ID in line:
-            self.in_body = False
+            self.buffer_lines = False
         elif not line:
-            self.in_body = True
+            self.buffer_lines = True
 
-        if self.in_body:
-            self.body.append(line)
+        if self.buffer_lines:
+            self.lines.append(line)
         else:
-            # add some form of filtering
-            words = [word.strip(FILTER)
-                     for word in re.split(DELIMITERS, "".join(self.body))]
+            message = "".join(self.lines)
 
-            for word in words:
-                if word not in self.wordset:
+            # Clean up terms.
+            terms = [term.strip(FILTER)
+                     for term in re.split(DELIMITERS, message)]
+
+            for term in terms:
+                if term not in self.vocabulary:
                     continue
 
-                if word not in self.words:
-                    self.words[word] = 0
+                if term not in self.words:
+                    self.words[term] = 0
 
-                self.words[word] += 1
+                self.words[term] += 1
 
-            self.body = []
+            self.lines = []
 
     def mapper_final(self):
         for word in self.words:
