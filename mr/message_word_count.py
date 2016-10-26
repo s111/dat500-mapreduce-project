@@ -27,13 +27,10 @@ class MRMessageWordCount(MRJob):
             self.lines.append(line)
         else:
             message = "".join(self.lines)
-
-            terms = re.split(DELIMITERS, message)
+            terms = (term for term in re.split(DELIMITERS, message)
+                     if len(term) and term in self.vocabulary)
 
             for term in terms:
-                if term not in self.vocabulary:
-                    continue
-
                 if term not in self.words:
                     self.words[term] = 0
 
