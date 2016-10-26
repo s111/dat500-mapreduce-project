@@ -42,8 +42,8 @@ class MRMessageWordCount(MRJob):
             self.lines = []
 
     def mapper_final(self):
-        for word in self.words:
-            yield word, self.words[word]
+        for word, occurences in self.words.items():
+            yield word, occurences
 
     def reducer(self, word, count):
         count = sum(count)
