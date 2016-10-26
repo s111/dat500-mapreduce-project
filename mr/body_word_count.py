@@ -1,29 +1,31 @@
 from mrjob.job import MRJob
-from datetime import datetime
 from nltk.corpus import words
 
-class MRBody_word_count(MRJob):
 import re
 
+MESSAGE_ID = '","Message-ID: '
 FILTER = "<> \\\"\'"
 DELIMITERS = '\.|,| '
+
+
+class MRBodyWordCount(MRJob):
     def mapper_init(self):
         self.in_body = False
         self.body = []
         self.wordset = set(words.words())
 
-
     def mapper(self, _, line):
         line = line.strip()
 
-        if not line and not self.in_body:
-            self.in_body = True
-        elif ',"Message-ID: ' in line:
+        if MESSAGE_ID in line:
             self.in_body = False
+        elif not line:
+            self.in_body = True
 
+        if self.in_body:
+            self.body.append(line)
+        else:
             # add some form of filtering
-            words = [word.strip("<> \\\"\'") for word in "".join(self.body).split(" ,.")
-                     if word.strip("<> \\\"\'") in self.wordset]
             words = [word.strip(FILTER)
                      for word in re.split(DELIMITERS, "".join(self.body))
                      if word.strip(FILTER) in self.wordset]
@@ -40,20 +42,16 @@ DELIMITERS = '\.|,| '
             for k, v in count.items():
                 yield k, v
 
-        if self.in_body:
-            self.body.append(line)
-
-
     def combiner(self, word, count):
         count = sum(count)
         if count >= 10:
             yield word, count
-
 
     def reducer(self, word, count):
         count = sum(count)
         if count >= 10:
             yield word, count
 
+
 if __name__ == '__main__':
-    MRBody_word_count.run()
+    MRBodyWordCount.run()
