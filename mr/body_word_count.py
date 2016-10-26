@@ -13,6 +13,7 @@ class MRBodyWordCount(MRJob):
         self.in_body = False
         self.body = []
         self.wordset = set(words.words())
+        self.words = {}
 
     def mapper(self, _, line):
         line = line.strip()
@@ -27,20 +28,21 @@ class MRBodyWordCount(MRJob):
         else:
             # add some form of filtering
             words = [word.strip(FILTER)
-                     for word in re.split(DELIMITERS, "".join(self.body))
-                     if word.strip(FILTER) in self.wordset]
-
-            self.body = []
-            count = {}
+                     for word in re.split(DELIMITERS, "".join(self.body))]
 
             for word in words:
-                if word in count:
-                    count[word] += 1
-                else:
-                    count[word] = 1
+                if word not in self.words:
+                    self.words[word] = 0
 
-            for k, v in count.items():
-                yield k, v
+                self.words[word] += 1
+
+            self.body = []
+
+    def mapper_final(self):
+        words = set(self.words.keys()).intersection(self.wordset)
+
+        for word in words:
+            yield word, self.words[word]
 
     def combiner(self, word, count):
         count = sum(count)
