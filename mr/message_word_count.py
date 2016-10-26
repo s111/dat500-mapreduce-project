@@ -19,12 +19,7 @@ class MRMessageWordCount(MRJob):
     def mapper(self, _, line):
         if MESSAGE_ID in line:
             self.buffer_lines = False
-        elif not line:
-            self.buffer_lines = True
 
-        if self.buffer_lines:
-            self.lines.append(line)
-        else:
             message = "".join(self.lines)
             terms = (term for term in re.split(DELIMITERS, message)
                      if term in self.vocabulary)
@@ -33,6 +28,11 @@ class MRMessageWordCount(MRJob):
                 self.words[term] += 1
 
             self.lines = []
+        elif not line:
+            self.buffer_lines = True
+
+        if self.buffer_lines:
+            self.lines.append(line)
 
     def mapper_final(self):
         for word, occurences in self.words.items():
