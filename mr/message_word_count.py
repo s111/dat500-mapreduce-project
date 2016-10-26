@@ -8,7 +8,7 @@ FILTER = "<> \\\"\'"
 DELIMITERS = "\.|,| "
 
 
-class MRBodyWordCount(MRJob):
+class MRMessageWordCount(MRJob):
     def mapper_init(self):
         self.vocabulary = {word: None for word in set(words.words())}
         self.words = {}
@@ -55,4 +55,4 @@ class MRBodyWordCount(MRJob):
 
 
 if __name__ == '__main__':
-    MRBodyWordCount.run()
+    MRMessageWordCount.run()
