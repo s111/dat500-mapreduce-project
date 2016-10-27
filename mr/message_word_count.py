@@ -5,7 +5,7 @@ from mrjob.job import MRJob
 from nltk.corpus import words
 
 MESSAGE_ID = "\",\"Message-ID: "
-DELIMITERS = "[^A-Za-z\-]"
+DELIMITERS = "[^A-Za-z]"
 
 
 class MRMessageWordCount(MRJob):
