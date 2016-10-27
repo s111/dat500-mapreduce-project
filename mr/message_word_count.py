@@ -10,7 +10,7 @@ DELIMITERS = "[^A-Za-z]"
 
 class MRMessageWordCount(MRJob):
     def mapper_init(self):
-        self.vocabulary = {word: 0 for word in set(words.words())}
+        self.vocabulary = {word.lower(): 0 for word in set(words.words())}
         self.words = defaultdict(int)
 
         self.buffer_lines = False
@@ -20,7 +20,7 @@ class MRMessageWordCount(MRJob):
         if MESSAGE_ID in line:
             self.buffer_lines = False
 
-            message = "".join(self.lines)
+            message = "".join(self.lines).lower()
             terms = (term for term in re.split(DELIMITERS, message)
                      if term in self.vocabulary)
 
