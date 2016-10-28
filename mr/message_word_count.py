@@ -5,7 +5,7 @@ from mrjob.job import MRJob
 from nltk.corpus import words
 
 MESSAGE_ID = "\",\"Message-ID: "
-DELIMITERS = "[^A-Za-z]"
+WORD = re.compile("\w+")
 
 
 class MRMessageWordCount(MRJob):
@@ -21,11 +21,11 @@ class MRMessageWordCount(MRJob):
             self.buffer_lines = False
 
             message = "".join(self.lines).lower()
-            terms = (term for term in re.split(DELIMITERS, message)
+            words = (term for term in WORD.findall(message)
                      if term in self.vocabulary)
 
-            for term in terms:
-                self.words[term] += 1
+            for word in words:
+                self.words[word] += 1
 
             self.lines = []
         elif not line:
