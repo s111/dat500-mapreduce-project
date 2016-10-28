@@ -30,8 +30,7 @@ class MRMessageWordCount(MRJob):
             self.lines = []
         elif not line:
             self.buffer_lines = True
-
-        if self.buffer_lines:
+        elif self.buffer_lines:
             self.lines.append(line)
 
     def mapper_final(self):
