@@ -1,5 +1,5 @@
 import re
-from collections import defaultdict
+from collections import Counter
 
 from mrjob.job import MRJob
 from nltk.corpus import words
@@ -11,7 +11,7 @@ WORD = re.compile("\w+")
 class MRMessageWordCount(MRJob):
     def mapper_init(self):
         self.vocabulary = {word.lower(): 0 for word in set(words.words())}
-        self.words = defaultdict(int)
+        self.words = Counter()
 
         self.buffer_lines = False
         self.lines = []
@@ -24,9 +24,7 @@ class MRMessageWordCount(MRJob):
             words = (term for term in WORD.findall(message)
                      if term in self.vocabulary)
 
-            for word in words:
-                self.words[word] += 1
-
+            self.words.update(words)
             self.lines = []
         elif not line:
             self.buffer_lines = True
