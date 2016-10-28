@@ -1,5 +1,6 @@
 from mrjob.job import MRJob
 from mrjob.step import MRStep
+from collections import defaultdict
 import re
 
 MESSAGE_ID = "\",\"Message-ID: "
@@ -30,7 +31,7 @@ class MRSuggestReceiver(MRJob):
         self.in_header = False
         self.sender = ""
         self.receiver = []
-        self.map = {}
+        self.map = defaultdict(dict)
 
     def mapper_from_to(self, _, line):
         line = line.strip()
@@ -47,10 +48,7 @@ class MRSuggestReceiver(MRJob):
                 self.receiver = valid_address(clean_address(line[4:].strip()).split())
 
             if self.sender and len(self.receiver):
-                if self.sender in self.map:
-                    receivers = self.map[self.sender]
-                else:
-                    receivers = {}
+                receivers = self.map[self.sender]
 
                 for recv in self.receiver:
                     if recv in receivers:
