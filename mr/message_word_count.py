@@ -32,6 +32,12 @@ class MRMessageWordCount(MRJob):
             self.lines.append(line)
 
     def mapper_final(self):
+        message = "".join(self.lines).lower()
+        words = (term for term in WORD.findall(message)
+                 if term in self.vocabulary)
+
+        self.words.update(words)
+
         for word, occurences in self.words.items():
             yield word, occurences
 
