@@ -1,6 +1,7 @@
 import re
 from collections import Counter
 
+import nltk
 from mrjob.job import MRJob
 from nltk.corpus import words
 
@@ -10,6 +11,8 @@ WORD = re.compile("\w+")
 
 class MRMessageWordCount(MRJob):
     def mapper_init(self):
+        nltk.data.path.append("nltk_data")
+
         self.vocabulary = {word.lower(): None for word in set(words.words())}
         self.words = Counter()
 
