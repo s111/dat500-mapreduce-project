@@ -5,7 +5,7 @@
 # while keeping the session.
 download() {
     base="https://drive.google.com/uc?export=download&id=$1"
-    key=`curl -c cookie.txt "$base" | grep -Po "confirm=.*?&" | sed "s/&//; s/.*=//"`
+    key=`curl -s -c cookie.txt "$base" | grep -Po "confirm=.*?&" | sed "s/&//; s/.*=//"`
     curl -L -b cookie.txt "$base&confirm=$key" > $2
     rm cookie.txt
 }
