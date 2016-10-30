@@ -1,7 +1,6 @@
 import re
 from collections import Counter
 
-import nltk
 from mrjob.job import MRJob
 from mrjob.protocol import JSONProtocol
 from nltk.corpus import words
@@ -14,8 +13,6 @@ class MRMessageWordCount(MRJob):
     INPUT_PROTOCOL = JSONProtocol
 
     def mapper_init(self):
-        nltk.data.path.append("nltk_data")
-
         self.vocabulary = {word.lower(): None for word in set(words.words())}
         self.words = Counter()
 
