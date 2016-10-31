@@ -1,3 +1,3 @@
 #!/bin/sh
 
-mrjob create-cluster -c mrjob_emr.conf --terminate-cluster $CLUSTER_ID
+mrjob terminate-cluster -c mrjob_emr.conf $CLUSTER_ID
