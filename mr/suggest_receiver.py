@@ -1,4 +1,5 @@
 from mrjob.step import MRStep
+
 from predict_receiver import MRPredictReceiver
 
 
@@ -25,9 +26,10 @@ class MRSuggestReceiver(MRPredictReceiver):
 
     def reducer_join(self, email, links):
         links = list(links)
-        metadata = max(enumerate(links), key = lambda tup: len(tup[1]))
+        metadata = max(enumerate(links), key=lambda tup: len(tup[1]))
         email_recv_pred = metadata[1]
-        # If there is not enough mail sent by email to have a top 3 list from second step, abort.
+        # If there is not enough mail sent by email to have a top 3 list from
+        # second step, abort.
         if len(email_recv_pred) == 3:
             del links[metadata[0]]
             for link in links:
@@ -45,5 +47,6 @@ class MRSuggestReceiver(MRPredictReceiver):
             tmp += l
         yield sender, list(set(tmp))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     MRSuggestReceiver.run()

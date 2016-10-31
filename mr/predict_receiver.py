@@ -11,7 +11,7 @@ EMAIL_REGX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 
 def clean_address(address):
-    return re.sub('[<>,\'/\\\\"]', '', address)
+    return re.sub("[<>,\'/\\\\\"]", "", address)
 
 
 def valid_address(addresses):
@@ -23,7 +23,7 @@ class MRPredictReceiver(MRJob):
         super(MRPredictReceiver, self).configure_options()
 
         self.add_passthrough_option(
-            '--output-csv',
+            "--output-csv",
             action="store_true",
             dest="output_csv",
             help="Output csv for consumption by Hive")
@@ -40,8 +40,9 @@ class MRPredictReceiver(MRJob):
                 mapper_init=self.mapper_to_from_init,
                 mapper=self.mapper_from_to,
                 mapper_final=self.mapper_to_from_final,
-                reducer=self.reducer_from_to), MRStep(
-                    mapper=self.mapper_predict, reducer=self.reducer_predict)
+                reducer=self.reducer_from_to),
+            MRStep(mapper=self.mapper_predict,
+                   reducer=self.reducer_predict)
         ]
 
     def mapper_to_from_init(self):
@@ -97,5 +98,5 @@ class MRPredictReceiver(MRJob):
             yield sender, [receiver for (receiver, count) in sorted_list[:3]]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     MRPredictReceiver.run()
