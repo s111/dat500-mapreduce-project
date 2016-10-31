@@ -3,6 +3,8 @@ from mrjob.step import MRStep
 from collections import defaultdict
 import re
 
+from csv_output_protocol import CSVOutputProtocol
+
 MESSAGE_ID = "\",\"Message-ID: "
 EMAIL_REGX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
@@ -13,6 +15,19 @@ def valid_address(addresses):
     return [addr for addr in addresses if EMAIL_REGX.match(addr)]
 
 class MRPredictReceiver(MRJob):
+    def configure_options(self):
+        super(MRPredictReceiver, self).configure_options()
+
+        self.add_passthrough_option(
+            '--output-csv', action="store_true",
+            dest="output_csv", help="Output csv for consumption by Hive")
+
+    def output_protocol(self):
+        if self.options.output_csv:
+            return CSVOutputProtocol()
+
+        return super(MRPredictReceiver, self).output_protocol()
+
     def steps(self):
         return [
             MRStep(mapper_init=self.mapper_to_from_init,
