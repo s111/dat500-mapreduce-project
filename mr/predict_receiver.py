@@ -85,9 +85,9 @@ class MRPredictReceiver(MRJob):
     def reducer_from_to(self, pair, count):
         yield pair, sum(count)
 
-    def mapper_predict(self, key, count):
-        sender = key[0]
-        receiver = key[1]
+    def mapper_predict(self, pair, count):
+        sender, receiver = pair
+
         yield sender, (receiver, count)
 
     def reducer_predict(self, sender, receiver_count):
