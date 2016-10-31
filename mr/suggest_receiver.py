@@ -5,13 +5,7 @@ from predict_receiver import MRPredictReceiver
 
 class MRSuggestReceiver(MRPredictReceiver):
     def steps(self):
-        return [
-            MRStep(mapper_init=self.mapper_to_from_init,
-                   mapper=self.mapper_from_to,
-                   mapper_final=self.mapper_to_from_final,
-                   reducer=self.reducer_from_to),
-            MRStep(mapper=self.mapper_predict,
-                   reducer=self.reducer_predict),
+        return super(MRSuggestReceiver, self).steps() + [
             MRStep(mapper=self.mapper_join,
                    reducer=self.reducer_join),
             MRStep(mapper=self.mapper_reassemble,
