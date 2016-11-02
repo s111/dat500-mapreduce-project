@@ -2,22 +2,29 @@ import re
 from collections import Counter
 
 from mrjob.job import MRJob
-from mrjob.protocol import JSONProtocol
+from mrjob.protocol import RawProtocol
 from nltk.corpus import words
 
+RECORD_DELIMITER = "\30"
 WORD = re.compile("\w+")
 
 
 class MRMessageWordCount(MRJob):
-    INPUT_PROTOCOL = JSONProtocol
+    HADOOP_INPUT_FORMAT = ("com.sebastianpedersen"
+                           ".hadoop.mapred.MessageInputFormat")
+    INPUT_PROTOCOL = RawProtocol
 
     def mapper_init(self):
         self.vocabulary = {word.lower(): None for word in set(words.words())}
         self.words = Counter()
 
     def mapper(self, _, email):
-        _, message = email
-        words = (term for term in WORD.findall(message)
+        # Discard header.
+        start = email.find(2 * RECORD_DELIMITER)
+        # Discard last line.
+        end = email.rfind(RECORD_DELIMITER)
+
+        words = (term for term in WORD.findall(email[start:end])
                  if term in self.vocabulary)
 
         self.words.update(words)
