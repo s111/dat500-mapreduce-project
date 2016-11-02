@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# DEPRECATED: Though this still works it's easier to use emr with MRJob.
+# Data can now be found in the S3 bucket dat500.
+
 # As google forces you to click the button to download, we have to get a little
 # clever. Basically we extract the confirmation key, then make another request
 # while keeping the session.
