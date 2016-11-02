@@ -4,7 +4,7 @@ from collections import defaultdict
 from mrjob.job import MRJob
 from mrjob.step import MRStep
 
-from csv_output_protocol import CSVOutputProtocol
+from protocol.csv_output_protocol import CSVOutputProtocol
 
 MESSAGE_ID = "\",\"Message-ID: "
 EMAIL_REGX = re.compile(r"[^@]+@[^@]+\.[^@]+")
