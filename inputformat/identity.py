@@ -3,7 +3,8 @@ from mrjob.protocol import RawProtocol
 
 
 class MRIdentity(MRJob):
-    HADOOP_INPUT_FORMAT = "com.sebastianpedersen.hadoop.mapred.MessageInputFormat"
+    HADOOP_INPUT_FORMAT = ("com.sebastianpedersen"
+                           ".hadoop.mapred.MessageInputFormat")
     INPUT_PROTOCOL = RawProtocol
 
     def mapper(self, key, value):
