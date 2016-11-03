@@ -15,7 +15,7 @@ class MRMessageWordCount(MRJob):
     INPUT_PROTOCOL = RawProtocol
 
     def mapper_init(self):
-        self.vocabulary = {word.lower(): None for word in set(words.words())}
+        self.vocabulary = set(map(str.lower, words.words()))
         self.words = Counter()
 
     def mapper(self, _, email):
