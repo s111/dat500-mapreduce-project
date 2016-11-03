@@ -18,7 +18,7 @@ class MRSuggestReceiver(MRPredictReceiver):
         if self.options.join_only:
             return JSONProtocol()
 
-        return super(MRSuggestReceiver, self).output_protocol()
+        return super(MRSuggestReceiver, self).input_protocol()
 
     def steps(self):
         if self.options.join_only:
