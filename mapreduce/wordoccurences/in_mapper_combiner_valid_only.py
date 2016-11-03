@@ -15,10 +15,11 @@ class MRMessageWordCount(MRCount):
         self.words = Counter()
 
         self.buffer_lines = False
+        self.skip = True
         self.lines = []
 
     def updateWords(self):
-        message = "".join(self.lines).lower()
+        message = " ".join(self.lines).lower()
         words = (term for term in WORD.findall(message)
                  if term in self.vocabulary)
 
@@ -26,10 +27,13 @@ class MRMessageWordCount(MRCount):
 
     def mapper(self, _, line):
         if MESSAGE_ID in line:
-            self.buffer_lines = False
-            self.updateWords()
-            self.lines = []
-        elif not line:
+            if not self.skip:
+                self.buffer_lines = False
+                self.updateWords()
+                self.lines = []
+            else:
+                self.skip = True
+        elif not line and not self.skip:
             self.buffer_lines = True
         elif self.buffer_lines:
             self.lines.append(line)
