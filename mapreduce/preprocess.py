@@ -15,7 +15,7 @@ dataset.
 from mrjob.job import MRJob
 
 MESSAGE_ID = "\",\"Message-ID: "
-SEPERATOR = "\30"  # ASCII record separator
+RECORD_DELIMITER = "\30"  # ASCII record separator
 
 
 class MRPreprocess(MRJob):
@@ -28,7 +28,7 @@ class MRPreprocess(MRJob):
     def mapper(self, _, line):
         if MESSAGE_ID in line:
             if self.id:
-                headers = SEPERATOR.join(self.headers).lower()
+                headers = RECORD_DELIMITER.join(self.headers).lower()
                 message = " ".join(self.lines)
 
                 yield self.id, (headers, message)
