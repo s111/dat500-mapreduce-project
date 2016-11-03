@@ -24,7 +24,7 @@ class MRMessageWordCount(MRJob):
         # Discard last line.
         end = email.rfind(RECORD_DELIMITER)
 
-        words = (term for term in WORD.findall(email[start:end])
+        words = (term for term in WORD.findall(email[start:end].lower())
                  if term in self.vocabulary)
 
         self.words.update(words)
