@@ -19,7 +19,7 @@ public class MessageInputFormat extends FileInputFormat<Text, Text> {
     }
 
     public static class MessageRecordReader implements RecordReader<Text, Text> {
-        private static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
+        private static final int DEFAULT_BUFFER_SIZE = 128 * 1024;
 
         private final FSDataInputStream stream;
         private final MessageReader reader;
