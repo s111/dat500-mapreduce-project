@@ -12,15 +12,14 @@ import java.io.InputStream;
 public class MessageReader implements Closeable {
     private static final Log LOG = LogFactory.getLog(MessageReader.class.getName());
 
-    private static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
-
     private static final byte[] MESSAGE_IDENTIFIER = "\",\"Message-ID: ".getBytes(Charsets.UTF_8);
     private static final byte NEWLINE = '\n';
     private static final byte RECORD_SEPARATOR = '\30';
 
     private final InputStream stream;
 
-    private final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+    private final byte[] buffer;
+    private final int bufferSize;
 
     // Bytes currently read into the buffer.
     private int bytesInBuffer = 0;
@@ -30,8 +29,10 @@ public class MessageReader implements Closeable {
     // Indicates whether we have reached EOF or not.
     private boolean done = false;
 
-    public MessageReader(InputStream stream) {
+    public MessageReader(InputStream stream, int bufferSize) {
         this.stream = stream;
+        this.bufferSize = bufferSize;
+        this.buffer = new byte[bufferSize];
     }
 
     /**

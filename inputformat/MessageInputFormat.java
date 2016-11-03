@@ -19,6 +19,8 @@ public class MessageInputFormat extends FileInputFormat<Text, Text> {
     }
 
     public static class MessageRecordReader implements RecordReader<Text, Text> {
+        private static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
+
         private final FSDataInputStream stream;
         private final MessageReader reader;
 
@@ -38,7 +40,7 @@ public class MessageInputFormat extends FileInputFormat<Text, Text> {
             stream = fs.open(file);
             stream.seek(start);
 
-            reader = new MessageReader(stream);
+            reader = new MessageReader(stream, configuration.getInt("io.file.buffer.size", DEFAULT_BUFFER_SIZE));
 
             skip = reader.skipMessage();
             position = start + skip;
