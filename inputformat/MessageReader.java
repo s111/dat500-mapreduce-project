@@ -76,6 +76,7 @@ public class MessageReader implements Closeable {
 
         int bytesRead = 0;
         int identifierMatch = 0;
+        int restore = 0;
 
         boolean keyProcessed = true;
 
@@ -116,6 +117,13 @@ public class MessageReader implements Closeable {
                 if (nextChar == NEWLINE) {
                     // If we still need to process the key.
                     if (store && keyProcessed) {
+                        if (restore > 0) {
+                            value.append(MESSAGE_IDENTIFIER, 0, restore);
+
+                            bytesRead += restore;
+                            restore = 0;
+                        }
+
                         int appendLength = bufferPosition - start;
 
                         key.append(buffer, start, appendLength);
@@ -157,7 +165,25 @@ public class MessageReader implements Closeable {
             int appendLength = readLength - identifierMatch;
 
             if (store && appendLength > 0) {
+                // Restore part assumed to be identifier.
+                // Note that if it were in fact the full identifier appendLength would be 0
+                // and we would not be here.
+                if (restore > 0) {
+                    value.append(MESSAGE_IDENTIFIER, 0, restore);
+
+                    bytesRead += restore;
+                    restore = 0;
+                }
+
                 value.append(buffer, start, appendLength);
+            }
+
+            // If we read past the buffer we might need to restore part of the identifier.
+            if (bufferPosition >= bytesInBuffer) {
+                if (identifierMatch > 0 && identifierMatch < MESSAGE_IDENTIFIER.length) {
+                    restore = identifierMatch;
+                    bytesRead -= restore;
+                }
             }
         }
 
