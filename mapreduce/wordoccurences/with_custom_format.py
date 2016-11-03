@@ -1,15 +1,16 @@
 import re
 from collections import Counter
 
-from mrjob.job import MRJob
 from mrjob.protocol import RawProtocol
 from nltk.corpus import words
+
+from MRCount import MRCount
 
 RECORD_DELIMITER = "\30"
 WORD = re.compile("\w+")
 
 
-class MRMessageWordCount(MRJob):
+class MRMessageWordCount(MRCount):
     HADOOP_INPUT_FORMAT = ("com.sebastianpedersen"
                            ".hadoop.mapred.MessageInputFormat")
     INPUT_PROTOCOL = RawProtocol
@@ -31,13 +32,10 @@ class MRMessageWordCount(MRJob):
 
     def mapper_final(self):
         for word, occurences in self.words.items():
-            yield word, occurences
+            yield self.getKey(word), occurences
 
     def reducer(self, word, occurences):
-        count = sum(occurences)
-
-        if count >= 10:
-            yield word, count
+        yield word, sum(occurences)
 
 
 if __name__ == "__main__":
