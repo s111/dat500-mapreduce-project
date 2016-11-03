@@ -32,7 +32,7 @@ class MRMessageWordCount(MRCount):
                 self.updateWords()
                 self.lines = []
             else:
-                self.skip = True
+                self.skip = False
         elif not line and not self.skip:
             self.buffer_lines = True
         elif self.buffer_lines:
