@@ -46,8 +46,7 @@ class MRSuggestReceiver(MRPredictReceiver):
         links = list(links)
         metadata = max(enumerate(links), key=lambda tup: len(tup[1]))
         email_recv_pred = metadata[1]
-        # If there is not enough mail sent by email to have a top 3 list from
-        # second step, abort.
+        # Only yield if there is enough emails to form a top 3 list
         if len(email_recv_pred) == 3:
             del links[metadata[0]]
             for link in links:
