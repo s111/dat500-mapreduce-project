@@ -43,10 +43,6 @@ class MRPreprocess(MRJob):
         elif self.buffer_lines:
             self.lines.append(line)
         elif self.id:
-            if SEPERATOR in line:
-                raise Exception("SEPERATOR: {} found in header!".format(
-                    repr(SEPERATOR)))
-
             self.headers.append(line)
 
     def mapper_final(self):
