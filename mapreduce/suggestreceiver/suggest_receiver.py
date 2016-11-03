@@ -1,10 +1,34 @@
 from mrjob.step import MRStep
+from mrjob.protocol import JSONProtocol
 
 from predict_receiver import MRPredictReceiver
 
 
 class MRSuggestReceiver(MRPredictReceiver):
+    def configure_options(self):
+        super(MRSuggestReceiver, self).configure_options()
+
+        self.add_passthrough_option(
+            "--join-only",
+            action="store_true",
+            dest="join_only",
+            help="Only perform the join steps on a preprocessed dataset.")
+
+    def input_protocol(self):
+        if self.options.join_only:
+            return JSONProtocol()
+
+        return super(MRSuggestReceiver, self).output_protocol()
+
     def steps(self):
+        if self.options.join_only:
+            return [
+                MRStep(mapper=self.mapper_join,
+                       reducer=self.reducer_join),
+                MRStep(mapper=self.mapper_reassemble,
+                       reducer=self.reducer_reassemble)
+            ]
+
         return super(MRSuggestReceiver, self).steps() + [
             MRStep(mapper=self.mapper_join,
                    reducer=self.reducer_join),

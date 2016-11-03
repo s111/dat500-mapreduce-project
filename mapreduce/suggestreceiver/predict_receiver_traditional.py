@@ -4,11 +4,10 @@ from collections import Counter
 
 from mrjob.job import MRJob
 from mrjob.step import MRStep
-from mrjob.protocol import RawProtocol
 
 from protocol.csv_output_protocol import CSVOutputProtocol
 
-RECORD_DELIMITER = "\30"
+MESSAGE_ID = "\",\"Message-ID: "
 SENDER = "From: "
 RECEIVERS = "To: "
 EMAIL_REGX = re.compile(r"[^@]+@[^@]+\.[^@]+")
@@ -22,13 +21,9 @@ def valid_address(addresses):
     return [addr for addr in addresses if EMAIL_REGX.match(addr)]
 
 
-class MRPredictReceiver(MRJob):
-    HADOOP_INPUT_FORMAT = ("com.sebastianpedersen"
-                           ".hadoop.mapred.MessageInputFormat")
-    INPUT_PROTOCOL = RawProtocol
-
+class MRPredictReceiverTraditional(MRJob):
     def configure_options(self):
-        super(MRPredictReceiver, self).configure_options()
+        super(MRPredictReceiverTraditional, self).configure_options()
 
         self.add_passthrough_option(
             "--output-csv",
@@ -40,7 +35,7 @@ class MRPredictReceiver(MRJob):
         if self.options.output_csv:
             return CSVOutputProtocol()
 
-        return super(MRPredictReceiver, self).output_protocol()
+        return super(MRPredictReceiverTraditional, self).output_protocol()
 
     def steps(self):
         return [
@@ -53,22 +48,32 @@ class MRPredictReceiver(MRJob):
         ]
 
     def mapper_to_from_init(self):
+        self.in_header = False
+        self.sender = ""
+        self.receiver = []
         self.map = defaultdict(Counter)
 
-    def mapper_from_to(self, _, email):
-        # extract from and to lines from email.
-        s_start = email.find(SENDER) + len(SENDER)
-        s_end = email.find(RECORD_DELIMITER, s_start)
-        r_start = email.find(RECEIVERS) + len(RECEIVERS)
-        r_end = email.find(RECORD_DELIMITER, r_start)
+    def mapper_from_to(self, _, line):
+        line = line.strip()
 
-        sender = clean_address(email[s_start:s_end])
-        receiver = valid_address(
-            clean_address(email[r_start:r_end].strip()).split())
+        if MESSAGE_ID in line:
+            self.in_header = True
+        elif not line:
+            self.in_header = False
 
-        receivers = self.map[sender]
-        receivers.update(receiver)
-        self.map[sender] = receivers
+        if self.in_header:
+            if line.startswith(SENDER):
+                self.sender = clean_address(line[6:].strip())
+            elif line.startswith(RECEIVERS):
+                self.receiver = valid_address(
+                    clean_address(line[4:].strip()).split())
+
+            if self.sender and len(self.receiver):
+                receivers = self.map[self.sender]
+                receivers.update(self.receiver)
+                self.map[self.sender] = receivers
+                self.sender = ""
+                self.receiver = []
 
     def mapper_to_from_final(self):
         for sender, receivers in self.map.items():
@@ -91,4 +96,4 @@ class MRPredictReceiver(MRJob):
 
 
 if __name__ == "__main__":
-    MRPredictReceiver.run()
+    MRPredictReceiverTraditional.run()
