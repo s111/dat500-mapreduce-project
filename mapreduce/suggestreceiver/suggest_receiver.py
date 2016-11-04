@@ -39,8 +39,8 @@ class MRSuggestReceiver(MRPredictReceiver):
     def mapper_join(self, sender, receivers):
         receivers = list(receivers)
         yield sender, receivers
-        for recv in receivers:
-            yield recv, [sender]
+        for receiver in receivers:
+            yield receiver, [sender]
 
     def reducer_join(self, email, links):
         links = list(links)
@@ -53,16 +53,13 @@ class MRSuggestReceiver(MRPredictReceiver):
                 yield link[0], email_recv_pred
 
     def mapper_reassemble(self, sender, suggestions):
-        suggestions = list(suggestions)
+        suggestions = list(set(suggestions))
         if sender in suggestions:
             suggestions.remove(sender)
         yield sender, suggestions
 
     def reducer_reassemble(self, sender, suggestions):
-        tmp = []
-        for l in list(suggestions):
-            tmp += l
-        yield sender, list(set(tmp))
+        yield sender, list(set(sum(suggestions, [])))
 
 
 if __name__ == "__main__":

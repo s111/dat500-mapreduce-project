@@ -11,7 +11,7 @@ from protocol.csv_output_protocol import CSVOutputProtocol
 RECORD_DELIMITER = "\30"
 SENDER = "From: "
 RECEIVERS = "To: "
-EMAIL_REGX = re.compile(r"[^@]+@[^@]+\.[^@]+")
+EMAIL = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 
 def clean_address(address):
@@ -19,7 +19,7 @@ def clean_address(address):
 
 
 def valid_address(addresses):
-    return [addr for addr in addresses if EMAIL_REGX.match(addr)]
+    return [addr for addr in addresses if EMAIL.match(addr)]
 
 
 class MRPredictReceiver(MRJob):
@@ -59,28 +59,26 @@ class MRPredictReceiver(MRJob):
         # extract from and to lines from email.
         s_start = email.find(SENDER) + len(SENDER)
         s_end = email.find(RECORD_DELIMITER, s_start)
-        r_start = email.find(RECEIVERS) + len(RECEIVERS)
+        r_start = email.find(RECEIVERS, s_end) + len(RECEIVERS)
         r_end = email.find(RECORD_DELIMITER, r_start)
 
         sender = clean_address(email[s_start:s_end])
-        receiver = valid_address(
-            clean_address(email[r_start:r_end].strip()).split())
+        receivers = valid_address(
+            clean_address(email[r_start:r_end]).split())
 
-        receivers = self.map[sender]
-        receivers.update(receiver)
-        self.map[sender] = receivers
+        self.map[sender].update(receivers)
+
 
     def mapper_to_from_final(self):
         for sender, receivers in self.map.items():
-            for recv, count in receivers.items():
-                yield (sender, recv), count
+            for receiver, count in receivers.items():
+                yield (sender, receiver), count
 
     def reducer_from_to(self, pair, count):
         yield pair, sum(count)
 
     def mapper_predict(self, pair, count):
         sender, receiver = pair
-
         yield sender, (receiver, count)
 
     def reducer_predict(self, sender, receiver_count):
