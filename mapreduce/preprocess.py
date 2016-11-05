@@ -47,7 +47,7 @@ class MRPreprocess(MRJob):
 
     def mapper_final(self):
         if self.id:
-            headers = " ".join(self.headers).lower()
+            headers = RECORD_DELIMITER.join(self.headers).lower()
             message = " ".join(self.lines).lower()
 
             yield self.id, (headers, message)
