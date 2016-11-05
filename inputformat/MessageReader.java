@@ -95,20 +95,9 @@ public class MessageReader implements Closeable {
 
                 // We've reached EOF.
                 if (bytesInBuffer <= 0) {
-                    if (restore > 0) {
-                        value.append(MESSAGE_IDENTIFIER, 0, restore);
+                    value.append(MESSAGE_IDENTIFIER, 0, restore);
 
-                        bytesRead += restore;
-                    }
-
-                    // Number of bytes read since EOF.
-                    int appendLength = bufferPosition - start;
-
-                    if (store && appendLength > 0) {
-                        value.append(buffer, start, appendLength);
-                    }
-
-                    bytesRead++;
+                    bytesRead += restore + 1;
                     done = true;
 
                     return bytesRead;
