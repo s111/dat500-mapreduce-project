@@ -79,7 +79,7 @@ public class MessageReader implements Closeable {
         int identifierMatch = 0;
         int restore = 0;
 
-        boolean keyProcessed = true;
+        boolean processKey = true;
 
         // Keep reading until we reach the start of a new message.
         while (identifierMatch < MESSAGE_IDENTIFIER.length) {
@@ -123,14 +123,14 @@ public class MessageReader implements Closeable {
 
                 if (nextChar == NEWLINE) {
                     // If we still need to process the key.
-                    if (store && keyProcessed) {
+                    if (store && processKey) {
                         int appendLength = bufferPosition - start;
 
                         key.append(buffer, start, appendLength);
                         // Skip key length + newline.
                         start += appendLength + 1;
 
-                        keyProcessed = false;
+                        processKey = false;
                     }
 
                     // We replace all newlines with the ascii record separator.
